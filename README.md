@@ -2,7 +2,7 @@
 Generate a checkerboard for camera calibration with
 
 ```shell
-python gen.py --format A4 --size 0.02 --resolution 0.001 # units of m
+python gen.py --format A4 --size 0.05 --resolution 0.0001 # units of m
 ```
 
 Call help with
