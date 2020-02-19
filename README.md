@@ -5,7 +5,7 @@ Generate a checkerboard for camera calibration with
 python gen.py --format A4 --size 0.02 --resolution 0.001 # units of m
 ```
 
-Call help with
+Saves resulting height, width, and square size in param.yaml. Call help with
 
 ```shell
 python gen.py -h
