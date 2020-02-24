@@ -2,17 +2,17 @@ import cairo
 import argparse
 import yaml
 
-M2INCH = 39.3701
-
 # checkerboard generator
 # best used with https://github.com/sourishg/stereo-calibration
 
-# DIN formats in units of m
-SIZE = {"A0": [0.841, 1.189],
-        "A1": [0.594, 0.841],
-        "A2": [0.420, 0.594],
-        "A3": [0.297, 0.420],
-        "A4": [0.210, 0.297]}
+M2INCH = 39.3701
+
+# DIN formats in units of inch
+SIZE = {"A0": [33.1, 46.8],
+        "A1": [23.4, 33.1],
+        "A2": [16.5, 23.4],
+        "A3": [11.7, 16.5],
+        "A4": [8.3, 11.7]}
 
 if __name__ == "__main__":
 
@@ -26,45 +26,40 @@ if __name__ == "__main__":
     size = parser.size
 
     # number of points
-    px = int(f[1]*M2INCH*72.) # width and height in points
-    py = int(f[0]*M2INCH*72.) # 1 point == 1/72 inch, https://pycairo.readthedocs.io/en/latest/reference/surfaces.html#class-pdfsurface-surface
+    px = int(f[1]*72.) # width and height in points
+    py = int(f[0]*72.) # 1 point == 1/72 inch, https://pycairo.readthedocs.io/en/latest/reference/surfaces.html#class-pdfsurface-surface
 
     # number of squares
-    nx = f[1]/size
-    ny = f[0]/size
+    nx = f[1]/(size*M2INCH)
+    ny = f[0]/(size*M2INCH)
 
     # scaling factor
     sx = int(px/nx)
     sy = int(py/ny)
     s = min(sx, sy)
 
-    svg = cairo.SVGSurface("checkerboard.svg",
-                           px,
-                           py
-    )
-    pdf = cairo.PDFSurface("checkerboard.pdf",
+    ps = cairo.PSSurface("checkerboard.ps",
                            px, 
                            py
     )
 
-    for surface in [svg, pdf]:
-        ctx = cairo.Context(surface)
-        ctx.scale(s, s)
+    ctx = cairo.Context(ps)
+    ctx.scale(s, s)
 
-        # create white surface
-        ctx.rectangle(0, 0, nx*sx, ny*sy)
-        ctx.set_source_rgb(1., 1., 1.)
-        ctx.fill()
+    # create white surface
+    ctx.rectangle(0, 0, nx*sx, ny*sy)
+    ctx.set_source_rgb(1., 1., 1.)
+    ctx.fill()
 
-        # fill white surface with black squares
-        for x in range(int(nx+1)):
-            for y in range(int(ny+1)):
-                if x % 2 == 0 and y % 2 == 0 or x % 2 == 1 and y % 2 == 1:
-                    ctx.rectangle(x, y, 1, 1)
-                    ctx.set_source_rgb(0., 0., 0.)
-                    ctx.fill()
+    # fill white surface with black squares
+    for x in range(int(nx+1)):
+        for y in range(int(ny+1)):
+            if x % 2 == 0 and y % 2 == 0 or x % 2 == 1 and y % 2 == 1:
+                ctx.rectangle(x, y, 1, 1)
+                ctx.set_source_rgb(0., 0., 0.)
+                ctx.fill()
 
-        surface.show_page()
+    ps.show_page()
 
     # safe parameters
     dict_file = {'w': int(nx), 'h': int(ny), 's': size}
