@@ -34,28 +34,33 @@ if __name__ == "__main__":
     sy = int(f[0]/float(ny)/res)
     s = min(sx, sy)
 
-    surface = cairo.ImageSurface(cairo.FORMAT_RGB24,
-                                 int(nx*sx),
-                                 int(ny*sy))
+    svg = cairo.SVGSurface("checkerboard.svg",
+                           int(nx*sx),
+                           int(ny*sy)
+    )
+    pdf = cairo.PDFSurface("checkerboard.pdf",
+                           int(nx*sx),
+                           int(ny*sy)
+    )
 
-    ctx = cairo.Context(surface)
-    ctx.scale(s, s)
+    for surface in [svg, pdf]:
+        ctx = cairo.Context(surface)
+        ctx.scale(s, s)
 
-    # create white surface
-    ctx.rectangle(0, 0, nx*sx, ny*sy)
-    ctx.set_source_rgb(1., 1., 1.)
-    ctx.fill()
+        # create white surface
+        ctx.rectangle(0, 0, nx*sx, ny*sy)
+        ctx.set_source_rgb(1., 1., 1.)
+        ctx.fill()
 
-    # fill white surface with black squares
-    for x in range(int(nx+1)):
-        for y in range(int(ny+1)):
-            if x % 2 == 0 and y % 2 == 0 or x % 2 == 1 and y % 2 == 1:
-                ctx.rectangle(x, y, 1, 1)
-                ctx.set_source_rgb(0., 0., 0.)
-                ctx.fill()
+        # fill white surface with black squares
+        for x in range(int(nx+1)):
+            for y in range(int(ny+1)):
+                if x % 2 == 0 and y % 2 == 0 or x % 2 == 1 and y % 2 == 1:
+                    ctx.rectangle(x, y, 1, 1)
+                    ctx.set_source_rgb(0., 0., 0.)
+                    ctx.fill()
 
-    # safe png
+    # safe parameters
     dict_file = {'w': int(nx), 'h': int(ny), 's': size}
     with open(r'param.yaml', 'w') as file:
         yaml.dump(dict_file, file)
-    surface.write_to_png('checkerboard.png')
