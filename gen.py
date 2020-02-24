@@ -60,6 +60,8 @@ if __name__ == "__main__":
                     ctx.set_source_rgb(0., 0., 0.)
                     ctx.fill()
 
+        surface.show_page()
+
     # safe parameters
     dict_file = {'w': int(nx), 'h': int(ny), 's': size}
     with open(r'param.yaml', 'w') as file:
