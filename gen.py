@@ -2,6 +2,8 @@ import cairo
 import argparse
 import yaml
 
+M2INCH = 39.3701
+
 # checkerboard generator
 # best used with https://github.com/sourishg/stereo-calibration
 
@@ -17,30 +19,32 @@ if __name__ == "__main__":
     arg = argparse.ArgumentParser()
     arg.add_argument("--format", type=str, default="A4", help="Set checkerboard format, defaults to A4")
     arg.add_argument("--size", type=float, default=5e-2, help="Set checkerboard square size, defaults to 5e-2 m")
-    arg.add_argument("--resolution", type=float, default=1e-4, help="Set checkerboard resolution, defaults to 1e-4 m")
 
     parser = arg.parse_args()
 
     f = SIZE[parser.format]
     size = parser.size
-    res = parser.resolution
+
+    # number of points
+    px = int(f[1]*M2INCH*72.) # width and height in points
+    py = int(f[0]*M2INCH*72.) # 1 point == 1/72 inch, https://pycairo.readthedocs.io/en/latest/reference/surfaces.html#class-pdfsurface-surface
 
     # number of squares
     nx = f[1]/size
     ny = f[0]/size
 
     # scaling factor
-    sx = int(f[1]/float(nx)/res)
-    sy = int(f[0]/float(ny)/res)
+    sx = int(px/nx)
+    sy = int(py/ny)
     s = min(sx, sy)
 
     svg = cairo.SVGSurface("checkerboard.svg",
-                           int(nx*sx),
-                           int(ny*sy)
+                           px,
+                           py
     )
     pdf = cairo.PDFSurface("checkerboard.pdf",
-                           int(nx*sx),
-                           int(ny*sy)
+                           px, 
+                           py
     )
 
     for surface in [svg, pdf]:
