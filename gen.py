@@ -43,23 +43,30 @@ if __name__ == "__main__":
                            py
     )
 
-    ctx = cairo.Context(ps)
-    ctx.scale(s, s)
+    pdf = cairo.PDFSurface("checkerboard.pdf",
+                           px, 
+                           py
+    )
 
-    # create white surface
-    ctx.rectangle(0, 0, nx*sx, ny*sy)
-    ctx.set_source_rgb(1., 1., 1.)
-    ctx.fill()
 
-    # fill white surface with black squares
-    for x in range(int(nx+1)):
-        for y in range(int(ny+1)):
-            if x % 2 == 0 and y % 2 == 0 or x % 2 == 1 and y % 2 == 1:
-                ctx.rectangle(x, y, 1, 1)
-                ctx.set_source_rgb(0., 0., 0.)
-                ctx.fill()
+    for surface in [ps, pdf]:
+        ctx = cairo.Context(surface)
+        ctx.scale(s, s)
 
-    ps.show_page()
+        # create white surface
+        ctx.rectangle(0, 0, nx*sx, ny*sy)
+        ctx.set_source_rgb(1., 1., 1.)
+        ctx.fill()
+
+        # fill white surface with black squares
+        for x in range(int(nx+1)):
+            for y in range(int(ny+1)):
+                if x % 2 == 0 and y % 2 == 0 or x % 2 == 1 and y % 2 == 1:
+                    ctx.rectangle(x, y, 1, 1)
+                    ctx.set_source_rgb(0., 0., 0.)
+                    ctx.fill()
+
+        surface.show_page()
 
     # safe parameters
     dict_file = {'w': int(nx), 'h': int(ny), 's': size}
